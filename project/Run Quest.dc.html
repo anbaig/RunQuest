@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0d0b1e; }
+    * { box-sizing: border-box; }
+    ::selection { background: #ffcd3c; color: #0d0b1e; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#0d0b1e; font-family:'Silkscreen', monospace; color:#f4f1ff; display:flex; justify-content:center;">
+<div style="width:100%; max-width:440px; min-height:100vh; background:#0d0b1e; position:relative; padding-bottom:150px;">
+
+  <!-- ============ PLAYER: DASHBOARD ============ -->
+  <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+    <div data-screen-label="Dashboard">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 20px 14px;">
+        <div style="font-family:'Press Start 2P'; font-size:15px; color:{{ pointsColor }}; letter-spacing:1px;">{{ appName }}</div>
+        <div style="display:flex; gap:8px;">
+          <button onClick="{{ openSync }}" style="width:36px; height:36px; background:#1c1a35; border:3px solid #3a3660; color:#6f699c; font-size:16px; cursor:pointer; padding:0;">&#8646;</button>
+          <button onClick="{{ handleGearTap }}" style="width:36px; height:36px; background:#1c1a35; border:3px solid #3a3660; color:#6f699c; font-size:15px; cursor:pointer; padding:0;">&#9881;</button>
+        </div>
+      </div>
+
+      <div style="padding:0 20px;">
+        <div style="background:#1c1a35; border:4px solid #fff; box-shadow:6px 6px 0 #000; padding:20px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+            <div style="display:grid; grid-template-columns:repeat(10, 6px); grid-template-rows:repeat(12, 6px); width:60px; height:72px; flex-shrink:0; background:#0d0b1e; border:2px solid #3a3660; padding:4px; box-sizing:content-box;">
+              <sc-for list="{{ avatarCells }}" as="cell" hint-placeholder-count="120">
+                <div style="width:6px; height:6px; background:{{ cell.color }};"></div>
+              </sc-for>
+            </div>
+            <div>
+              <div style="font-family:'Press Start 2P'; font-size:12px; color:#ff4d6d;">LV {{ level }}</div>
+              <div style="font-size:12px; color:{{ pointsColor }}; margin-top:6px; letter-spacing:1px;">{{ tierName }}</div>
+              <div style="font-size:14px; color:#9c96c2; margin-top:6px;">{{ totalEarned }} LIFETIME PTS</div>
+            </div>
+          </div>
+          <div style="height:16px; background:#0d0b1e; border:2px solid #fff; position:relative;">
+            <div style="height:100%; background:#ff4d6d; width:{{ progressPct }}%;"></div>
+          </div>
+          <div style="font-size:13px; color:#9c96c2; margin-top:8px;">{{ xpLabel }}</div>
+        </div>
+
+        <div style="background:#1c1a35; border:4px solid {{ pointsColor }}; box-shadow:6px 6px 0 #000; padding:26px; text-align:center; margin-bottom:16px;">
+          <div style="font-size:13px; color:#9c96c2; letter-spacing:2px;">POINTS BALANCE</div>
+          <div style="font-family:'Press Start 2P'; font-size:44px; color:{{ pointsColor }}; margin:14px 0;">{{ balance }}</div>
+          <div style="font-size:14px; color:#9c96c2;">{{ totalMiles }} MI RUN TOTAL</div>
+        </div>
+
+        <div style="background:#1c1a35; border:4px solid {{ streakColor }}; box-shadow:6px 6px 0 #000; padding:18px; margin-bottom:22px; display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <div style="font-size:13px; color:#9c96c2;">CURRENT STREAK</div>
+            <div style="font-family:'Press Start 2P'; font-size:20px; color:{{ streakColor }}; margin-top:8px;">{{ streak }} DAYS</div>
+          </div>
+          <div style="background:#0d0b1e; border:3px solid {{ streakColor }}; padding:10px 14px;">
+            <div style="font-size:12px; color:{{ streakColor }};">&times;{{ multiplier }} PTS/MI</div>
+          </div>
+        </div>
+
+        <div style="font-family:'Press Start 2P'; font-size:12px; color:#f4f1ff; margin-bottom:12px;">RECENT RUNS</div>
+        <sc-for list="{{ log }}" as="entry" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; justify-content:space-between; background:#1c1a35; border:2px solid #3a3660; padding:12px 14px; margin-bottom:8px;">
+            <div>
+              <div style="font-size:14px; color:#f4f1ff;">{{ entry.date }} &mdash; {{ entry.miles }} mi</div>
+              <div style="font-size:12px; color:#6f699c; margin-top:2px;">&times;{{ entry.mult }} streak bonus</div>
+            </div>
+            <div style="font-family:'Press Start 2P'; font-size:13px; color:{{ pointsColor }};">+{{ entry.points }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noLog }}">
+          <div style="text-align:center; color:#6f699c; font-size:13px; padding:16px 0 8px;">No runs logged yet.</div>
+        </sc-if>
+      </div>
+
+      <div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:440px; padding:24px 20px 20px; background:linear-gradient(0deg,#0d0b1e 75%,transparent); display:flex; gap:10px;">
+        <button onClick="{{ openLogRun }}" style="flex:1; background:#1c1a35; color:{{ streakColor }}; border:3px solid {{ streakColor }}; box-shadow:5px 5px 0 #000; font-family:'Press Start 2P'; font-size:11px; padding:16px 0; cursor:pointer;">LOG A RUN</button>
+        <button onClick="{{ goShop }}" style="flex:1; background:{{ pointsColor }}; color:#0d0b1e; border:3px solid #fff; box-shadow:5px 5px 0 #000; font-family:'Press Start 2P'; font-size:11px; padding:16px 0; cursor:pointer;">OPEN SHOP &rarr;</button>
+      </div>
+
+      <sc-if value="{{ showLogRun }}">
+        <div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px; z-index:20;">
+          <div style="width:100%; max-width:360px; background:#1c1a35; border:4px solid #fff; box-shadow:7px 7px 0 #000; padding:22px;">
+            <div style="font-family:'Press Start 2P'; font-size:13px; color:{{ streakColor }}; margin-bottom:16px;">LOG A RUN</div>
+            <div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">MILES RUN TODAY</div>
+            <input value="{{ milesInput }}" onChange="{{ setMiles }}" type="number" step="0.1" placeholder="e.g. 5.2" style="width:100%; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:'Silkscreen'; font-size:16px; padding:12px; margin-bottom:14px;"/>
+            <div style="font-size:13px; color:#9c96c2; margin-bottom:18px;">Streak bonus &times;{{ multiplier }} &mdash; will award <span style="color:{{ pointsColor }};">{{ previewPoints }} pts</span></div>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ submitLogRun }}" disabled="{{ awardDisabled }}" style="{{ logRunSubmitStyle }}">LOG IT</button>
+              <button onClick="{{ closeLogRun }}" style="flex:1; background:#1c1a35; color:#f4f1ff; border:3px solid #6f699c; font-family:'Press Start 2P'; font-size:11px; padding:12px 0; cursor:pointer;">CANCEL</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ PLAYER: SHOP ============ -->
+  <sc-if value="{{ isShop }}">
+    <div data-screen-label="Shop">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 20px 16px;">
+        <button onClick="{{ goDashboard }}" style="background:none; border:none; color:#9c96c2; font-family:'Silkscreen'; font-size:14px; cursor:pointer; padding:0;">&larr; BACK</button>
+        <div style="background:#1c1a35; border:2px solid {{ pointsColor }}; padding:6px 12px; font-family:'Press Start 2P'; font-size:12px; color:{{ pointsColor }};">{{ balance }} PTS</div>
+      </div>
+      <div style="font-family:'Press Start 2P'; font-size:17px; color:#f4f1ff; padding:0 20px 18px;">SHOP</div>
+
+      <div style="padding:0 20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <sc-for list="{{ shopItems }}" as="item" hint-placeholder-count="4">
+          <div style="background:#1c1a35; border:4px solid #fff; box-shadow:5px 5px 0 #000; padding:14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="width:40px; height:40px; background:{{ item.colorHex }}; display:flex; align-items:center; justify-content:center; font-family:'Press Start 2P'; font-size:15px; color:#0d0b1e;">{{ item.letter }}</div>
+            <div style="font-size:14px; color:#f4f1ff; min-height:34px;">{{ item.name }}</div>
+            <div style="font-family:'Press Start 2P'; font-size:13px; color:{{ pointsColor }};">&#9670; {{ item.cost }}</div>
+            <button onClick="{{ item.onBuy }}" disabled="{{ item.disabled }}" style="{{ item.buttonStyle }}">{{ item.buttonLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ noItems }}">
+        <div style="text-align:center; color:#6f699c; font-size:13px; padding:30px 20px;">Shop is empty. Add prizes in GM mode.</div>
+      </sc-if>
+
+      <sc-if value="{{ purchaseItem }}">
+        <div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px;">
+          <div style="width:100%; max-width:360px; background:#1c1a35; border:4px solid #fff; box-shadow:7px 7px 0 #000; padding:22px;">
+            <div style="font-size:14px; color:#f4f1ff; line-height:1.6; margin-bottom:20px;">Buy <span style="color:{{ pointsColor }};">{{ purchaseItem.name }}</span> for <span style="color:{{ pointsColor }};">{{ purchaseItem.cost }} pts</span>?</div>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ confirmPurchase }}" style="flex:1; background:#4ade80; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">YES</button>
+              <button onClick="{{ closePurchase }}" style="flex:1; background:#1c1a35; color:#f4f1ff; border:3px solid #6f699c; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">NO</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ toast }}">
+        <div style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); width:calc(100% - 48px); max-width:392px; background:#1c1a35; border:3px solid #4ade80; box-shadow:5px 5px 0 #000; padding:14px 16px; font-size:13px; color:#4ade80; text-align:center;">{{ toast }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ SYNC ============ -->
+  <sc-if value="{{ isSync }}">
+    <div data-screen-label="Sync" style="padding:22px 20px;">
+      <button onClick="{{ goDashboard }}" style="background:none; border:none; color:#9c96c2; font-family:'Silkscreen'; font-size:14px; cursor:pointer; padding:0; margin-bottom:18px;">&larr; BACK</button>
+      <div style="font-family:'Press Start 2P'; font-size:16px; color:{{ pointsColor }}; margin-bottom:20px;">SYNC PROGRESS</div>
+
+      <div style="font-size:13px; color:#9c96c2; margin-bottom:8px;">YOUR CODE &mdash; send this to sync your progress to the other phone</div>
+      <textarea readOnly="{{ true }}" value="{{ syncCode }}" style="width:100%; height:90px; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:monospace; font-size:11px; padding:10px; resize:none; margin-bottom:10px;"></textarea>
+      <button onClick="{{ copySyncCode }}" style="width:100%; background:{{ pointsColor }}; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">COPY CODE</button>
+
+      <div style="font-size:13px; color:#9c96c2; margin:26px 0 8px;">PASTE A CODE TO LOAD AN UPDATE</div>
+      <textarea value="{{ syncInput }}" onChange="{{ setSyncInput }}" placeholder="Paste code here" style="width:100%; height:90px; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:monospace; font-size:11px; padding:10px; resize:none; margin-bottom:12px;"></textarea>
+      <button onClick="{{ loadSyncUpdate }}" style="width:100%; background:#1c1a35; color:{{ streakColor }}; border:3px solid {{ streakColor }}; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">LOAD UPDATE</button>
+
+      <sc-if value="{{ syncMessage }}">
+        <div style="margin-top:18px; padding:12px; border:2px solid {{ syncMessageColor }}; color:{{ syncMessageColor }}; font-size:13px; text-align:center;">{{ syncMessageText }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ GM: PIN GATE ============ -->
+  <sc-if value="{{ isPinGate }}">
+    <div data-screen-label="GM Login" style="padding:60px 30px; text-align:center;">
+      <div style="font-family:'Press Start 2P'; font-size:15px; color:#b185f7; margin-bottom:8px;">GAME MASTER</div>
+      <div style="font-size:13px; color:#6f699c; margin-bottom:30px;">Enter PIN to continue</div>
+      <div style="display:flex; justify-content:center; gap:10px; margin-bottom:{{ pinErrorMargin }};">
+        <sc-for list="{{ pinDots }}" as="dot" hint-placeholder-count="4">
+          <div style="width:18px; height:18px; border:3px solid #b185f7; background:{{ dot.filled }};"></div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ pinError }}">
+        <div style="color:#ff4d6d; font-size:12px; margin-bottom:16px;">WRONG PIN</div>
+      </sc-if>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:260px; margin:0 auto;">
+        <sc-for list="{{ padKeys }}" as="k" hint-placeholder-count="12">
+          <button onClick="{{ k.onPress }}" style="{{ k.style }}">{{ k.label }}</button>
+        </sc-for>
+      </div>
+      <button onClick="{{ goDashboard }}" style="margin-top:26px; background:none; border:none; color:#6f699c; font-size:13px; cursor:pointer;">&larr; back to dashboard</button>
+    </div>
+  </sc-if>
+
+  <!-- ============ GM: ADMIN ============ -->
+  <sc-if value="{{ isGm }}">
+    <div data-screen-label="GM Admin">
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:22px 20px 16px;">
+        <div style="font-family:'Press Start 2P'; font-size:14px; color:#b185f7;">GAME MASTER</div>
+        <button onClick="{{ goDashboard }}" style="background:none; border:none; color:#9c96c2; font-family:'Silkscreen'; font-size:14px; cursor:pointer;">EXIT &rarr;</button>
+      </div>
+
+      <div style="display:flex; padding:0 20px; gap:6px; margin-bottom:18px;">
+        <button onClick="{{ tabLog }}" style="{{ tabLogStyle }}">LOG RUN</button>
+        <button onClick="{{ tabShop }}" style="{{ tabShopStyle }}">SHOP</button>
+        <button onClick="{{ tabReq }}" style="{{ tabReqStyle }}">REQUESTS{{ reqBadge }}</button>
+        <button onClick="{{ tabSync }}" style="{{ tabSyncStyle }}">SYNC</button>
+      </div>
+
+      <div style="padding:0 20px;">
+        <!-- LOG RUN TAB -->
+        <sc-if value="{{ onTabLog }}">
+          <div style="background:#1c1a35; border:4px solid #b185f7; box-shadow:6px 6px 0 #000; padding:20px; margin-bottom:16px;">
+            <div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">MILES RUN TODAY</div>
+            <input value="{{ milesInput }}" onChange="{{ setMiles }}" type="number" step="0.1" placeholder="e.g. 5.2" style="width:100%; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:'Silkscreen'; font-size:16px; padding:12px; margin-bottom:14px;"/>
+            <div style="font-size:13px; color:#9c96c2; margin-bottom:16px;">Current streak bonus: &times;{{ multiplier }} &mdash; will award <span style="color:#b185f7;">{{ previewPoints }} pts</span></div>
+            <button onClick="{{ awardRun }}" disabled="{{ awardDisabled }}" style="{{ awardButtonStyle }}">AWARD POINTS</button>
+          </div>
+          <div style="background:#1c1a35; border:2px solid #3a3660; padding:16px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-size:13px; color:#9c96c2;">Streak: {{ streak }} days</div>
+            <button onClick="{{ resetStreak }}" style="background:none; border:2px solid #ff4d6d; color:#ff4d6d; font-size:12px; padding:8px 12px; cursor:pointer;">RESET STREAK</button>
+          </div>
+        </sc-if>
+
+        <!-- SHOP TAB -->
+        <sc-if value="{{ onTabShop }}">
+          <div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">CURRENT ITEMS</div>
+          <sc-for list="{{ shopItems }}" as="item" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; justify-content:space-between; background:#1c1a35; border:2px solid #3a3660; padding:12px 14px; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:28px; height:28px; background:{{ item.colorHex }}; font-family:'Press Start 2P'; font-size:11px; color:#0d0b1e; display:flex; align-items:center; justify-content:center;">{{ item.letter }}</div>
+                <div style="font-size:14px;">{{ item.name }} &mdash; {{ item.cost }}pt</div>
+              </div>
+              <button onClick="{{ item.onRemove }}" style="background:none; border:none; color:#ff4d6d; font-size:18px; cursor:pointer;">&times;</button>
+            </div>
+          </sc-for>
+
+          <div style="background:#1c1a35; border:4px solid #b185f7; box-shadow:6px 6px 0 #000; padding:18px; margin-top:16px;">
+            <div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">ADD PRIZE</div>
+            <input value="{{ newItemName }}" onChange="{{ setNewName }}" placeholder="Prize name" style="width:100%; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:'Silkscreen'; font-size:15px; padding:10px; margin-bottom:10px;"/>
+            <input value="{{ newItemCost }}" onChange="{{ setNewCost }}" type="number" placeholder="Cost in points" style="width:100%; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:'Silkscreen'; font-size:15px; padding:10px; margin-bottom:12px;"/>
+            <div style="display:flex; gap:8px; margin-bottom:14px;">
+              <sc-for list="{{ colorOptions }}" as="c" hint-placeholder-count="5">
+                <button onClick="{{ c.onPick }}" style="{{ c.style }}"></button>
+              </sc-for>
+            </div>
+            <button onClick="{{ addItem }}" disabled="{{ addDisabled }}" style="{{ addButtonStyle }}">ADD TO SHOP</button>
+          </div>
+        </sc-if>
+
+        <!-- REQUESTS TAB -->
+        <sc-if value="{{ onTabReq }}">
+          <div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">PENDING</div>
+          <sc-for list="{{ pendingRedemptions }}" as="r" hint-placeholder-count="1">
+            <div style="background:#1c1a35; border:2px solid #ffcd3c; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+              <div>
+                <div style="font-size:14px;">{{ r.itemName }}</div>
+                <div style="font-size:12px; color:#6f699c; margin-top:2px;">{{ r.date }} &mdash; {{ r.cost }}pt</div>
+              </div>
+              <button onClick="{{ r.onFulfill }}" style="background:#4ade80; color:#0d0b1e; border:none; font-size:12px; padding:8px 10px; cursor:pointer;">FULFILLED</button>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noPending }}">
+            <div style="text-align:center; color:#6f699c; font-size:13px; padding:20px 0;">No pending redemptions.</div>
+          </sc-if>
+
+          <sc-if value="{{ hasFulfilled }}">
+            <div style="font-size:13px; color:#9c96c2; margin:20px 0 10px;">FULFILLED</div>
+            <sc-for list="{{ fulfilledRedemptions }}" as="r" hint-placeholder-count="1">
+              <div style="background:#1c1a35; border:2px solid #3a3660; padding:12px 14px; margin-bottom:8px; opacity:0.6;">
+                <div style="font-size:14px;">{{ r.itemName }}</div>
+                <div style="font-size:12px; color:#6f699c; margin-top:2px;">{{ r.date }} &mdash; {{ r.cost }}pt</div>
+              </div>
+            </sc-for>
+          </sc-if>
+        </sc-if>
+
+        <!-- SYNC TAB -->
+        <sc-if value="{{ onTabSync }}">
+          <div style="font-size:13px; color:#9c96c2; margin-bottom:8px;">YOUR CODE &mdash; send this to sync your progress to the other phone</div>
+          <textarea readOnly="{{ true }}" value="{{ syncCode }}" style="width:100%; height:90px; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:monospace; font-size:11px; padding:10px; resize:none; margin-bottom:10px;"></textarea>
+          <button onClick="{{ copySyncCode }}" style="width:100%; background:#b185f7; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">COPY CODE</button>
+
+          <div style="font-size:13px; color:#9c96c2; margin:26px 0 8px;">PASTE A CODE TO LOAD AN UPDATE</div>
+          <textarea value="{{ syncInput }}" onChange="{{ setSyncInput }}" placeholder="Paste code here" style="width:100%; height:90px; background:#0d0b1e; border:2px solid #6f699c; color:#f4f1ff; font-family:monospace; font-size:11px; padding:10px; resize:none; margin-bottom:12px;"></textarea>
+          <button onClick="{{ loadSyncUpdate }}" style="width:100%; background:#1c1a35; color:#b185f7; border:3px solid #b185f7; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:12px 0; cursor:pointer;">LOAD UPDATE</button>
+
+          <sc-if value="{{ syncMessage }}">
+            <div style="margin-top:18px; padding:12px; border:2px solid {{ syncMessageColor }}; color:{{ syncMessageColor }}; font-size:13px; text-align:center;">{{ syncMessageText }}</div>
+          </sc-if>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 440, &quot;height&quot;: 900},
+  &quot;appName&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;RUN QUEST&quot;, &quot;tsType&quot;: &quot;string&quot;},
+  &quot;pointsColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#ffcd3c&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#ffcd3c&quot;, &quot;#4ade80&quot;, &quot;#4cc9f0&quot;]},
+  &quot;streakColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#4cc9f0&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#4cc9f0&quot;, &quot;#ff4d6d&quot;, &quot;#b185f7&quot;]},
+  &quot;gmPinEnabled&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Game Master&quot;},
+  &quot;gmPin&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;1234&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Game Master&quot;}
+}">
+const STORE_KEY = 'runquest-state-v1';
+
+const DEFAULT_SHOP = [
+  { id: 1, name: 'LEGO Set', cost: 450, color: 'gold' },
+  { id: 2, name: 'Dinner Out', cost: 200, color: 'red' },
+  { id: 3, name: "Barnes & Noble Trip", cost: 150, color: 'cyan' },
+  { id: 4, name: 'Movie Night', cost: 120, color: 'green' },
+];
+
+const COLOR_HEX = { gold: '#ffcd3c', red: '#ff4d6d', cyan: '#4cc9f0', green: '#4ade80', purple: '#b185f7' };
+
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard',
+    gmTab: 'log',
+    gmUnlocked: false,
+    balance: 128,
+    totalEarned: 128,
+    streak: 3,
+    totalMiles: 42.5,
+    log: [
+      { id: 1, date: 'Jul 6', miles: 5.2, points: 16, mult: 3 },
+      { id: 2, date: 'Jul 4', miles: 3.0, points: 6, mult: 2 },
+      { id: 3, date: 'Jul 3', miles: 4.5, points: 5, mult: 1 },
+    ],
+    shop: DEFAULT_SHOP,
+    redemptions: [],
+    purchaseItemId: null,
+    showLogRun: false,
+    toast: null,
+    milesInput: '',
+    newItemName: '',
+    newItemCost: '',
+    newItemColor: 'gold',
+    pinInput: '',
+    pinError: false,
+    syncInput: '',
+    syncMessage: null,
+  };
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        this.setState(saved);
+      }
+    } catch (e) {}
+  }
+
+  persist(extra) {
+    const s = { ...this.state, ...(extra || {}) };
+    const toSave = {
+      balance: s.balance, totalEarned: s.totalEarned, streak: s.streak, totalMiles: s.totalMiles,
+      log: s.log, shop: s.shop, redemptions: s.redemptions,
+    };
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(toSave)); } catch (e) {}
+  }
+
+  buildAvatarCells(level, pointsColor, streakColor) {
+    const tier = level >= 10 ? 4 : level >= 6 ? 3 : level >= 3 ? 2 : 1;
+    const base = [
+      'HHHHHHHH',
+      'HHHHHHHH',
+      'HSESSESH',
+      'HSSSSSSH',
+      '..SSSS..',
+      'BBBBBBBB',
+      'BBBBBBBB',
+      'BBBBBBBB',
+      'B.BBBB.B',
+      '..LLLL..',
+      '.LL..LL.',
+      '.LL..LL.',
+    ];
+    const rows = base.map(r => '.' + r + '.');
+    if (tier >= 2) rows[1] = '.' + 'AAAAAAAA' + '.';
+    if (tier >= 3) {
+      [6, 7, 8, 9].forEach(i => {
+        const r = rows[i].split('');
+        r[0] = 'A'; r[9] = 'A';
+        rows[i] = r.join('');
+      });
+    }
+    if (tier >= 4) {
+      rows[0] = '.' + 'C.C.C.C.' + '.';
+      rows[1] = '.' + 'CCCCCCCC' + '.';
+    }
+    const legend = { '.': 'transparent', H: '#5a4d8a', S: '#f0b988', E: '#151225', B: pointsColor, L: '#413875', A: streakColor, C: '#ffe066' };
+    const cells = [];
+    rows.forEach((row, ri) => {
+      row.split('').forEach((ch, ci) => {
+        cells.push({ key: ri + '-' + ci, color: legend[ch] || 'transparent' });
+      });
+    });
+    return { cells, tier };
+  }
+
+  encodeState(s) {
+    const payload = {
+      balance: s.balance, totalEarned: s.totalEarned, streak: s.streak, totalMiles: s.totalMiles,
+      log: s.log, shop: s.shop, redemptions: s.redemptions,
+    };
+    return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  }
+
+  decodeState(code) {
+    return JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+  }
+
+  flashMessage(text, color) {
+    this.setState({ syncMessage: { text, color } });
+    setTimeout(() => this.setState({ syncMessage: null }), 3000);
+  }
+
+  openSync = () => this.setState({ screen: 'sync', syncInput: '', syncMessage: null });
+
+  copySyncCode = () => {
+    const code = this.encodeState(this.state);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code)
+        .then(() => this.flashMessage('Code copied!', '#4ade80'))
+        .catch(() => this.flashMessage('Copy failed \u2014 select & copy manually', '#ff4d6d'));
+    } else {
+      this.flashMessage('Select the code above to copy manually', '#ffcd3c');
+    }
+  };
+
+  setSyncInput = (e) => this.setState({ syncInput: e.target.value });
+
+  loadSyncUpdate = () => {
+    try {
+      const parsed = this.decodeState(this.state.syncInput);
+      if (typeof parsed.balance !== 'number' || !Array.isArray(parsed.shop)) throw new Error('bad shape');
+      const newState = { ...parsed, syncInput: '' };
+      this.setState(newState, () => {
+        this.persist(newState);
+        this.flashMessage('Synced!', '#4ade80');
+      });
+    } catch (e) {
+      this.flashMessage('Invalid code \u2014 check and try again', '#ff4d6d');
+    }
+  };
+
+  tabSync = () => this.setState({ gmTab: 'sync' });
+
+  multFor(streak) {
+    if (streak >= 7) return 4;
+    if (streak >= 4) return 3;
+    if (streak >= 2) return 2;
+    return 1;
+  }
+
+  handleGearTap = () => {
+    if (this.props.gmPinEnabled === false || this.state.gmUnlocked) {
+      this.setState({ screen: 'gm', gmTab: 'log' });
+    } else {
+      this.setState({ screen: 'pin', pinInput: '', pinError: false });
+    }
+  };
+
+  goDashboard = () => this.setState({ screen: 'dashboard' });
+  openLogRun = () => this.setState({ showLogRun: true, milesInput: '' });
+  closeLogRun = () => this.setState({ showLogRun: false, milesInput: '' });
+  submitLogRun = () => { this.awardRun(); this.setState({ showLogRun: false }); };
+  goShop = () => this.setState({ screen: 'shop', purchaseItemId: null });
+  tabLog = () => this.setState({ gmTab: 'log' });
+  tabShop = () => this.setState({ gmTab: 'shop' });
+  tabReq = () => this.setState({ gmTab: 'req' });
+
+  pressDigit = (d) => {
+    const pin = String(this.props.gmPin ?? '1234');
+    let next = (this.state.pinInput + d).slice(0, pin.length);
+    if (next.length === pin.length) {
+      if (next === pin) {
+        this.setState({ gmUnlocked: true, screen: 'gm', gmTab: 'log', pinInput: '', pinError: false });
+      } else {
+        this.setState({ pinInput: '', pinError: true });
+        setTimeout(() => this.setState({ pinError: false }), 900);
+      }
+    } else {
+      this.setState({ pinInput: next, pinError: false });
+    }
+  };
+  pressBackspace = () => this.setState({ pinInput: this.state.pinInput.slice(0, -1), pinError: false });
+
+  setMiles = (e) => this.setState({ milesInput: e.target.value });
+  setNewName = (e) => this.setState({ newItemName: e.target.value });
+  setNewCost = (e) => this.setState({ newItemCost: e.target.value });
+
+  awardRun = () => {
+    const miles = parseFloat(this.state.milesInput);
+    if (!miles || miles <= 0) return;
+    const mult = this.multFor(this.state.streak);
+    const points = Math.round(miles * mult);
+    const entry = { id: Date.now(), date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), miles: miles, points, mult };
+    const newState = {
+      balance: this.state.balance + points,
+      totalEarned: this.state.totalEarned + points,
+      totalMiles: Math.round((this.state.totalMiles + miles) * 10) / 10,
+      streak: this.state.streak + 1,
+      log: [entry, ...this.state.log],
+      milesInput: '',
+    };
+    this.setState(newState, () => this.persist(newState));
+  };
+
+  resetStreak = () => {
+    this.setState({ streak: 0 }, () => this.persist({ streak: 0 }));
+  };
+
+  openPurchase = (id) => this.setState({ purchaseItemId: id });
+  closePurchase = () => this.setState({ purchaseItemId: null });
+
+  confirmPurchase = () => {
+    const item = this.state.shop.find(i => i.id === this.state.purchaseItemId);
+    if (!item || this.state.balance < item.cost) return;
+    const redemption = { id: Date.now(), itemId: item.id, itemName: item.name, cost: item.cost, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), status: 'pending' };
+    const newState = {
+      balance: this.state.balance - item.cost,
+      redemptions: [redemption, ...this.state.redemptions],
+      purchaseItemId: null,
+      toast: `Redeemed ${item.name}! Ask your GM.`,
+    };
+    this.setState(newState, () => {
+      this.persist(newState);
+      setTimeout(() => this.setState({ toast: null }), 2600);
+    });
+  };
+
+  setNewColor = (c) => this.setState({ newItemColor: c });
+
+  addItem = () => {
+    const name = this.state.newItemName.trim();
+    const cost = parseInt(this.state.newItemCost, 10);
+    if (!name || !cost || cost <= 0) return;
+    const item = { id: Date.now(), name, cost, color: this.state.newItemColor };
+    const newState = { shop: [...this.state.shop, item], newItemName: '', newItemCost: '' };
+    this.setState(newState, () => this.persist(newState));
+  };
+
+  removeItem = (id) => {
+    const newState = { shop: this.state.shop.filter(i => i.id !== id) };
+    this.setState(newState, () => this.persist(newState));
+  };
+
+  fulfillRedemption = (id) => {
+    const newState = { redemptions: this.state.redemptions.map(r => r.id === id ? { ...r, status: 'fulfilled' } : r) };
+    this.setState(newState, () => this.persist(newState));
+  };
+
+  renderVals() {
+    const s = this.state;
+    const pointsColor = this.props.pointsColor || '#ffcd3c';
+    const streakColor = this.props.streakColor || '#4cc9f0';
+    const appName = this.props.appName || 'RUN QUEST';
+    const multiplier = this.multFor(s.streak);
+    const level = Math.floor(s.totalEarned / 100) + 1;
+    const progressPct = s.totalEarned % 100;
+    const xpLabel = `${100 - progressPct} pts to LV ${level + 1}`;
+    const avatar = this.buildAvatarCells(level, pointsColor, streakColor);
+    const tierNames = { 1: 'ROOKIE', 2: 'RUNNER', 3: 'CHAMPION', 4: 'LEGEND' };
+    const tierName = tierNames[avatar.tier];
+
+    const shopItems = s.shop.map(item => {
+      const disabled = s.balance < item.cost;
+      return {
+        ...item,
+        colorHex: COLOR_HEX[item.color] || COLOR_HEX.gold,
+        letter: item.name.trim().charAt(0).toUpperCase(),
+        disabled,
+        buttonLabel: disabled ? `NEED ${item.cost - s.balance} MORE` : 'BUY',
+        buttonStyle: disabled
+          ? 'width:100%; background:#0d0b1e; color:#6f699c; border:2px solid #3a3660; font-size:11px; padding:10px 0; cursor:not-allowed;'
+          : `width:100%; background:${pointsColor}; color:#0d0b1e; border:2px solid #fff; box-shadow:3px 3px 0 #000; font-family:'Press Start 2P'; font-size:11px; padding:10px 0; cursor:pointer;`,
+        onBuy: () => { if (!disabled) this.openPurchase(item.id); },
+        onRemove: () => this.removeItem(item.id),
+      };
+    });
+
+    const purchaseItemRaw = s.purchaseItemId ? s.shop.find(i => i.id === s.purchaseItemId) : null;
+
+    const pendingRedemptions = s.redemptions.filter(r => r.status === 'pending').map(r => ({ ...r, onFulfill: () => this.fulfillRedemption(r.id) }));
+    const fulfilledRedemptions = s.redemptions.filter(r => r.status === 'fulfilled');
+
+    const colorNames = ['gold', 'red', 'cyan', 'green', 'purple'];
+    const colorOptions = colorNames.map(c => ({
+      name: c,
+      onPick: () => this.setNewColor(c),
+      style: `width:32px; height:32px; background:${COLOR_HEX[c]}; border:${s.newItemColor === c ? '3px solid #fff' : '2px solid transparent'}; cursor:pointer; padding:0;`,
+    }));
+
+    const padDef = ['1','2','3','4','5','6','7','8','9','','0','DEL'];
+    const padKeys = padDef.map(k => {
+      if (k === '') return { label: '', onPress: () => {}, style: 'visibility:hidden;' };
+      if (k === 'DEL') return { label: '\u232B', onPress: this.pressBackspace, style: "background:#1c1a35; border:2px solid #6f699c; color:#f4f1ff; font-family:'Silkscreen'; font-size:16px; padding:16px 0; cursor:pointer;" };
+      return { label: k, onPress: () => this.pressDigit(k), style: "background:#1c1a35; border:2px solid #6f699c; color:#f4f1ff; font-family:'Press Start 2P'; font-size:14px; padding:16px 0; cursor:pointer;" };
+    });
+
+    const pinLen = String(this.props.gmPin ?? '1234').length;
+    const pinDots = Array.from({ length: pinLen }).map((_, i) => ({ filled: i < s.pinInput.length ? '#b185f7' : 'transparent' }));
+
+    const previewPoints = Math.round((parseFloat(s.milesInput) || 0) * multiplier);
+    const awardDisabled = !s.milesInput || parseFloat(s.milesInput) <= 0;
+    const addDisabled = !s.newItemName.trim() || !s.newItemCost || parseInt(s.newItemCost, 10) <= 0;
+
+    const tabStyle = (active) => `flex:1; background:${active ? '#b185f7' : '#1c1a35'}; color:${active ? '#0d0b1e' : '#9c96c2'}; border:2px solid ${active ? '#b185f7' : '#3a3660'}; font-size:9px; padding:10px 2px; cursor:pointer; white-space:nowrap;`;
+
+    return {
+      isDashboard: s.screen === 'dashboard',
+      isShop: s.screen === 'shop',
+      isPinGate: s.screen === 'pin',
+      isGm: s.screen === 'gm',
+      isSync: s.screen === 'sync',
+      openSync: this.openSync,
+      syncCode: this.encodeState(s),
+      syncInput: s.syncInput,
+      setSyncInput: this.setSyncInput,
+      copySyncCode: this.copySyncCode,
+      loadSyncUpdate: this.loadSyncUpdate,
+      syncMessage: s.syncMessage,
+      syncMessageText: s.syncMessage ? s.syncMessage.text : '',
+      syncMessageColor: s.syncMessage ? s.syncMessage.color : '#4ade80',
+      appName, pointsColor, streakColor,
+      level, progressPct, xpLabel,
+      avatarCells: avatar.cells,
+      tierName,
+      totalEarned: s.totalEarned,
+      balance: s.balance,
+      totalMiles: s.totalMiles,
+      streak: s.streak,
+      multiplier,
+      log: s.log,
+      noLog: s.log.length === 0,
+      handleGearTap: this.handleGearTap,
+      goDashboard: this.goDashboard,
+      goShop: this.goShop,
+      showLogRun: s.showLogRun,
+      openLogRun: this.openLogRun,
+      closeLogRun: this.closeLogRun,
+      submitLogRun: this.submitLogRun,
+      logRunSubmitStyle: awardDisabled
+        ? "flex:1; background:#0d0b1e; color:#6f699c; border:3px solid #3a3660; font-family:'Press Start 2P'; font-size:11px; padding:12px 0; cursor:not-allowed;"
+        : `flex:1; background:${streakColor}; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:11px; padding:12px 0; cursor:pointer;`,
+      shopItems,
+      noItems: shopItems.length === 0,
+      purchaseItem: purchaseItemRaw,
+      confirmPurchase: this.confirmPurchase,
+      closePurchase: this.closePurchase,
+      toast: s.toast,
+      pinDots,
+      pinError: s.pinError,
+      pinErrorMargin: s.pinError ? '10px' : '30px',
+      padKeys,
+      gmTab: s.gmTab,
+      onTabLog: s.gmTab === 'log',
+      onTabShop: s.gmTab === 'shop',
+      onTabReq: s.gmTab === 'req',
+      tabLog: this.tabLog, tabShop: this.tabShop, tabReq: this.tabReq, tabSync: this.tabSync,
+      tabLogStyle: tabStyle(s.gmTab === 'log'),
+      tabShopStyle: tabStyle(s.gmTab === 'shop'),
+      tabReqStyle: tabStyle(s.gmTab === 'req'),
+      tabSyncStyle: tabStyle(s.gmTab === 'sync'),
+      onTabSync: s.gmTab === 'sync',
+      reqBadge: pendingRedemptions.length > 0 ? ` (${pendingRedemptions.length})` : '',
+      milesInput: s.milesInput,
+      setMiles: this.setMiles,
+      previewPoints,
+      awardRun: this.awardRun,
+      awardDisabled,
+      awardButtonStyle: awardDisabled
+        ? "width:100%; background:#0d0b1e; color:#6f699c; border:2px solid #3a3660; font-family:'Press Start 2P'; font-size:12px; padding:14px 0; cursor:not-allowed;"
+        : "width:100%; background:#b185f7; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:14px 0; cursor:pointer;",
+      resetStreak: this.resetStreak,
+      newItemName: s.newItemName,
+      newItemCost: s.newItemCost,
+      setNewName: this.setNewName,
+      setNewCost: this.setNewCost,
+      colorOptions,
+      addItem: this.addItem,
+      addDisabled,
+      addButtonStyle: addDisabled
+        ? "width:100%; background:#0d0b1e; color:#6f699c; border:2px solid #3a3660; font-family:'Press Start 2P'; font-size:12px; padding:14px 0; cursor:not-allowed;"
+        : "width:100%; background:#b185f7; color:#0d0b1e; border:3px solid #fff; box-shadow:4px 4px 0 #000; font-family:'Press Start 2P'; font-size:12px; padding:14px 0; cursor:pointer;",
+      pendingRedemptions,
+      noPending: pendingRedemptions.length === 0,
+      fulfilledRedemptions,
+      hasFulfilled: fulfilledRedemptions.length > 0,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
