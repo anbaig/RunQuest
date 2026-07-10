@@ -47,7 +47,7 @@ input[type="number"] { -moz-appearance: textfield; }
 <body>
 
 <div style="min-height:100vh; background:#0d0b1e; font-family:'Silkscreen', monospace; color:#f4f1ff; display:flex; justify-content:center;">
-<div style="width:100%; max-width:440px; min-height:100vh; background:#0d0b1e; position:relative; padding-bottom:150px;">
+<div style="width:100%; max-width:440px; min-height:100vh; background:#0d0b1e; position:relative; padding-top:env(safe-area-inset-top, 0px); padding-bottom:calc(150px + env(safe-area-inset-bottom, 0px));">
   <div id="app-content"></div>
 </div>
 </div>
@@ -424,7 +424,7 @@ input[type="number"] { -moz-appearance: textfield; }
     var logRunModal = '';
     if (s.showLogRun) {
       logRunModal = '' +
-        '<div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px; z-index:20;">' +
+        '<div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px; padding-top:max(24px, env(safe-area-inset-top, 0px)); padding-bottom:max(24px, env(safe-area-inset-bottom, 0px)); z-index:20;">' +
           '<div style="width:100%; max-width:360px; background:#1c1a35; border:4px solid #fff; box-shadow:7px 7px 0 #000; padding:22px;">' +
             '<div style="font-family:\'Press Start 2P\'; font-size:13px; color:' + v.streakColor + '; margin-bottom:16px;">LOG A RUN</div>' +
             '<div style="font-size:13px; color:#9c96c2; margin-bottom:10px;">MILES RUN TODAY</div>' +
@@ -486,7 +486,7 @@ input[type="number"] { -moz-appearance: textfield; }
           logHtml +
         '</div>' +
 
-        '<div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:440px; padding:24px 20px 20px; background:linear-gradient(0deg,#0d0b1e 75%,transparent); display:flex; gap:10px;">' +
+        '<div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:440px; padding:24px 20px calc(20px + env(safe-area-inset-bottom, 0px)); background:linear-gradient(0deg,#0d0b1e 75%,transparent); display:flex; gap:10px;">' +
           '<button onclick="App.openLogRun()" style="flex:1; background:#1c1a35; color:' + v.streakColor + '; border:3px solid ' + v.streakColor + '; box-shadow:5px 5px 0 #000; font-family:\'Press Start 2P\'; font-size:11px; padding:16px 0; cursor:pointer;">LOG A RUN</button>' +
           '<button onclick="App.goShop()" style="flex:1; background:' + v.pointsColor + '; color:#0d0b1e; border:3px solid #fff; box-shadow:5px 5px 0 #000; font-family:\'Press Start 2P\'; font-size:11px; padding:16px 0; cursor:pointer;">OPEN SHOP &rarr;</button>' +
         '</div>' +
@@ -514,7 +514,7 @@ input[type="number"] { -moz-appearance: textfield; }
     var purchaseModal = '';
     if (v.purchaseItem) {
       purchaseModal = '' +
-        '<div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px;">' +
+        '<div style="position:fixed; inset:0; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:24px; padding-top:max(24px, env(safe-area-inset-top, 0px)); padding-bottom:max(24px, env(safe-area-inset-bottom, 0px));">' +
           '<div style="width:100%; max-width:360px; background:#1c1a35; border:4px solid #fff; box-shadow:7px 7px 0 #000; padding:22px;">' +
             '<div style="font-size:14px; color:#f4f1ff; line-height:1.6; margin-bottom:20px;">Buy <span style="color:' + v.pointsColor + ';">' + esc(v.purchaseItem.name) + '</span> for <span style="color:' + v.pointsColor + ';">' + v.purchaseItem.cost + ' pts</span>?</div>' +
             '<div style="display:flex; gap:10px;">' +
@@ -526,7 +526,7 @@ input[type="number"] { -moz-appearance: textfield; }
     }
 
     var toastHtml = s.toast
-      ? '<div style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); width:calc(100% - 48px); max-width:392px; background:#1c1a35; border:3px solid #4ade80; box-shadow:5px 5px 0 #000; padding:14px 16px; font-size:13px; color:#4ade80; text-align:center;">' + esc(s.toast) + '</div>'
+      ? '<div style="position:fixed; bottom:calc(24px + env(safe-area-inset-bottom, 0px)); left:50%; transform:translateX(-50%); width:calc(100% - 48px); max-width:392px; background:#1c1a35; border:3px solid #4ade80; box-shadow:5px 5px 0 #000; padding:14px 16px; font-size:13px; color:#4ade80; text-align:center;">' + esc(s.toast) + '</div>'
       : '';
 
     return '' +
